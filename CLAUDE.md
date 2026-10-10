@@ -415,6 +415,8 @@ reserved by relational syntax.
 ### Supported matrix
 
 - CPython 3.10–3.15 (`cp310`–`cp315`)
+- CPython 3.15 CI requires `ENDSTONE_ARTIFACT_TOKEN` with GitHub Actions read access to the
+  upstream Endstone repository until compatible wheels are available on PyPI.
 - Windows x86-64 (`win_amd64`)
 - manylinux x86-64 (`manylinux_x86_64`)
 

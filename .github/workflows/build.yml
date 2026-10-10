@@ -236,7 +236,13 @@ jobs:
       - name: Download Endstone CPython 3.15 runtime
         if: matrix.python-tag == 'cp315'
         shell: bash
+        env:
+          ENDSTONE_ARTIFACT_TOKEN: ${{ secrets.ENDSTONE_ARTIFACT_TOKEN }}
         run: |
+          if [ -z "$ENDSTONE_ARTIFACT_TOKEN" ]; then
+            echo "::error::ENDSTONE_ARTIFACT_TOKEN is required to download the CPython 3.15 Endstone wheel"
+            exit 1
+          fi
           if [ "${{ runner.os }}" = "Linux" ]; then
             artifact_id=11674718763
             digest=195fb2e7c0e441111a4a7ee29b47e986dd3e639480b1df3f0fbcb66e255fd9bc
@@ -246,7 +252,10 @@ jobs:
           fi
           archive="$RUNNER_TEMP/endstone-cp315.zip"
           curl --fail --location --retry 3 --retry-delay 2 \
-            "https://nightly.link/EndstoneMC/endstone/workflows/build.yml/v0.11/endstone-0.11.14.dev10-cp315-cp315-${{ matrix.platform }}.whl.zip" \
+            -H "Authorization: Bearer $ENDSTONE_ARTIFACT_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/EndstoneMC/endstone/actions/artifacts/${artifact_id}/zip" \
             --output "$archive"
           echo "$digest  $archive" | sha256sum --check
           mkdir -p .endstone-ci

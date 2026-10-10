@@ -10,12 +10,16 @@ from pathlib import Path
 def main() -> None:
     root = Path(__file__).resolve().parent.parent
     locations = (root / ".endstone-ci", Path("/endstone-ci"))
-    wheels = [wheel for location in locations for wheel in location.glob("endstone-*.whl")]
+    for location in locations:
+        wheels = list(location.glob("endstone-*.whl"))
+        if not wheels:
+            continue
+        if len(wheels) != 1:
+            raise RuntimeError(f"expected one pinned Endstone wheel in {location}, found {len(wheels)}")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", str(wheels[0])])
+        return
 
-    if len(wheels) != 1:
-        raise RuntimeError(f"expected one pinned Endstone wheel, found {len(wheels)}")
-
-    subprocess.check_call([sys.executable, "-m", "pip", "install", str(wheels[0])])
+    raise RuntimeError("pinned Endstone wheel is missing")
 
 
 if __name__ == "__main__":

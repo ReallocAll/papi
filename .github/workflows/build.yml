@@ -270,6 +270,8 @@ jobs:
         env:
           CIBW_BUILD: ${{ matrix.python-tag }}-${{ matrix.platform }}
           CIBW_BUILD_VERBOSITY: 1
+          CIBW_BEFORE_TEST: ${{ matrix.python-tag == 'cp315' && 'python "{project}/tools/install_ci_endstone.py"' || '' }}
+          CIBW_TEST_COMMAND: ${{ matrix.python-tag == 'cp315' && 'python "{project}/tools/wheel_smoke_test.py" --official' || '' }}
           CIBW_CONTAINER_ENGINE: "docker; create_args: --volume ${{ github.workspace }}/.conan2:/project/.conan2 --volume ${{ github.workspace }}/.endstone-ci:/endstone-ci:ro"
 
       - name: Reclaim Conan home (Linux)
@@ -314,11 +316,13 @@ jobs:
           fi
 
       - name: Set up Python for runtime test
+        if: matrix.python-tag != 'cp315'
         uses: actions/setup-python@v7
         with:
           python-version: "${{ matrix.python-version }}"
 
       - name: Runtime smoke test
+        if: matrix.python-tag != 'cp315'
         shell: bash
         env:
           PYTHONFAULTHANDLER: "1"

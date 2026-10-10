@@ -317,7 +317,16 @@ jobs:
           echo "$digest  $archive" | sha256sum --check
           mkdir -p .endstone-ci
           unzip -q "$archive" -d .endstone-ci
-          test "$(find .endstone-ci -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
+          wheel="$(find .endstone-ci -type f -name '*.whl' -print -quit)"
+          if [ -z "$wheel" ]; then
+            find .endstone-ci -maxdepth 3 -type f -print
+            echo "::error::Downloaded artifact does not contain an Endstone wheel"
+            exit 1
+          fi
+          if [ "$wheel" != ".endstone-ci/$(basename "$wheel")" ]; then
+            mv "$wheel" ".endstone-ci/$(basename "$wheel")"
+          fi
+          test "$(find .endstone-ci -maxdepth 1 -type f -name '*.whl' | wc -l)" -eq 1
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.2.1

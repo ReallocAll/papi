@@ -366,7 +366,7 @@ def test_python_315_wheel_matrix_and_runtime_contract() -> None:
         assert "https://api.github.com/repos/EndstoneMC/endstone/actions/artifacts/" in workflow
         assert "secrets.ENDSTONE_ARTIFACT_TOKEN" in workflow
         assert "sha256sum --check" in workflow
-        assert "endstone-*.dist-info/WHEEL" in workflow
+        assert "unzip -p \"$archive\" '*.dist-info/WHEEL'" in workflow
         assert "cp315-cp315-" in workflow
         assert "python -m pip install .endstone-ci/*.whl" in workflow
         assert "CIBW_BEFORE_TEST:" in workflow

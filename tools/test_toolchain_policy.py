@@ -352,6 +352,7 @@ def test_repair_targets_endstone_manylinux_baseline_and_verifies_final_wheel() -
 def test_python_315_wheel_matrix_and_runtime_contract() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert "cp315-*" in pyproject["tool"]["cibuildwheel"]["build"]
+    assert pyproject["tool"]["cibuildwheel"]["linux"]["environment"]["PIP_FIND_LINKS"] == "/endstone-ci"
     assert "Programming Language :: Python :: 3.15" in pyproject["project"]["classifiers"]
     requirements = pyproject["build-system"]["requires"]
     assert any("endstone>=0.11.14.dev10,<0.12" in requirement for requirement in requirements)
@@ -365,7 +366,6 @@ def test_python_315_wheel_matrix_and_runtime_contract() -> None:
         assert "repository: EndstoneMC/endstone" in workflow
         assert "nightly.link/EndstoneMC/endstone/workflows/build.yml/v0.11/" in workflow
         assert "sha256sum --check" in workflow
-        assert "PIP_FIND_LINKS=/endstone-ci" in workflow
         assert "python -m pip install .endstone-ci/*.whl" in workflow
 
 

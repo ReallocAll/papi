@@ -315,7 +315,6 @@ jobs:
         env:
           CIBW_BUILD: ${{ matrix.python-tag }}-${{ matrix.platform }}
           CIBW_BUILD_VERBOSITY: 1
-          CIBW_ENVIRONMENT_LINUX: "PIP_FIND_LINKS=/endstone-ci"
           CIBW_CONTAINER_ENGINE: "docker; create_args: --volume ${{ github.workspace }}/.conan2:/project/.conan2 --volume ${{ github.workspace }}/.endstone-ci:/endstone-ci:ro"
 
       - name: Reclaim Conan home (Linux)

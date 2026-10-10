@@ -363,7 +363,7 @@ def test_python_315_wheel_matrix_and_runtime_contract() -> None:
         assert 'python-version: "3.15"' in workflow
         assert "pypa/cibuildwheel@v4.2.1" in workflow
         assert "repository: EndstoneMC/endstone" in workflow
-        assert "nightly.link/EndstoneMC/endstone/suites/103138660684/artifacts/" in workflow
+        assert "nightly.link/EndstoneMC/endstone/workflows/build.yml/v0.11/" in workflow
         assert "sha256sum --check" in workflow
         assert "PIP_FIND_LINKS=/endstone-ci" in workflow
         assert "python -m pip install .endstone-ci/*.whl" in workflow

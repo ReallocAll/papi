@@ -303,7 +303,7 @@ jobs:
           fi
           archive="$RUNNER_TEMP/endstone-cp315.zip"
           curl --fail --location --retry 3 --retry-delay 2 \
-            "https://nightly.link/EndstoneMC/endstone/suites/103138660684/artifacts/${artifact_id}.zip" \
+            "https://nightly.link/EndstoneMC/endstone/workflows/build.yml/v0.11/endstone-0.11.14.dev10-cp315-cp315-${{ matrix.platform }}.whl.zip" \
             --output "$archive"
           echo "$digest  $archive" | sha256sum --check
           mkdir -p .endstone-ci

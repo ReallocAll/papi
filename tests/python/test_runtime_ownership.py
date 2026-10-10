@@ -15,6 +15,7 @@ mutation of site-packages:
 from __future__ import annotations
 
 import pathlib
+import tomllib
 
 import endstone_papi
 
@@ -72,9 +73,11 @@ def test_pyproject_declares_endstone_runtime_dependency() -> None:
 
 def test_pyproject_linux_before_build_installs_endstone() -> None:
     """The Linux cibuildwheel before-build must install endstone for repair_wheel.py."""
-    content = _PYPROJECT.read_text(encoding="utf-8")
-    assert "endstone==0.11.11" in content, "before-build must pin endstone for build-time SONAME discovery"
-    assert "pip install ninja wheel endstone" in content, "before-build must install wheel for unpacking and repacking"
+    config = tomllib.loads(_PYPROJECT.read_text(encoding="utf-8"))
+    before_build = config["tool"]["cibuildwheel"]["linux"]["before-build"]
+    assert "pip install ninja wheel" in before_build
+    assert "endstone==0.11.11" in before_build
+    assert "endstone>=0.11.14.dev10,<0.12" in before_build
 
 
 def test_pyproject_routes_wheel_repair_through_build_backend() -> None:

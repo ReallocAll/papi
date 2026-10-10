@@ -29,7 +29,9 @@ SMOKE_SPEC.loader.exec_module(wheel_smoke)
 def test_endstone_runtime_range_preserves_exact_build_baseline() -> None:
     config = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert config["project"]["dependencies"] == ["endstone>=0.11.8,<0.12"]
-    assert "endstone==0.11.11; sys_platform == 'linux' and python_version < '3.15'" in config["build-system"]["requires"]
+    assert (
+        "endstone==0.11.11; sys_platform == 'linux' and python_version < '3.15'" in config["build-system"]["requires"]
+    )
     assert "endstone==0.11.11" in config["tool"]["cibuildwheel"]["linux"]["before-build"]
     cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
     assert 'set(PAPI_ENDSTONE_TAG "v0.11.11" CACHE STRING' in cmake
@@ -363,7 +365,7 @@ def test_python_315_wheel_matrix_and_runtime_contract() -> None:
         assert "repository: EndstoneMC/endstone" in workflow
         assert "nightly.link/EndstoneMC/endstone/suites/103138660684/artifacts/" in workflow
         assert "sha256sum --check" in workflow
-        assert "PIP_FIND_LINKS=/project/.endstone-ci" in workflow
+        assert "PIP_FIND_LINKS=/endstone-ci" in workflow
         assert "python -m pip install .endstone-ci/*.whl" in workflow
 
 

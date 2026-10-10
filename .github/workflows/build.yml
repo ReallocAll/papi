@@ -14,7 +14,6 @@ on:
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
   native-linux:
@@ -236,13 +235,23 @@ jobs:
 
       - name: Download Endstone CPython 3.15 runtime
         if: matrix.python-tag == 'cp315'
-        uses: actions/download-artifact@v7
-        with:
-          repository: EndstoneMC/endstone
-          run-id: 38065605505
-          name: endstone-0.11.14.dev10-${{ matrix.python-tag }}-${{ matrix.python-tag }}-${{ matrix.platform }}.whl
-          github-token: ${{ github.token }}
-          path: .endstone-ci
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            artifact_id=11674718763
+            digest=195fb2e7c0e441111a4a7ee29b47e986dd3e639480b1df3f0fbcb66e255fd9bc
+          else
+            artifact_id=11674443175
+            digest=4d6fb9b455eaeebfdc01ef40db1335b6bc5d3677da4b3cd7f923d15950ffc661
+          fi
+          archive="$RUNNER_TEMP/endstone-cp315.zip"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://nightly.link/EndstoneMC/endstone/actions/artifacts/${artifact_id}.zip" \
+            --output "$archive"
+          echo "$digest  $archive" | sha256sum --check
+          mkdir -p .endstone-ci
+          unzip -q "$archive" -d .endstone-ci
+          test "$(find .endstone-ci -maxdepth 1 -name '*.whl' -type f | wc -l)" -eq 1
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.2.1

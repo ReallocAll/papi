@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- CPython 3.15 wheels for Windows and Linux.
+
 ### Fixed
 
 - Linux wheels now target Endstone's `manylinux_2_31` baseline and reject packaging when generated binaries require a newer baseline.

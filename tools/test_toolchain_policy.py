@@ -347,6 +347,25 @@ def test_repair_targets_endstone_manylinux_baseline_and_verifies_final_wheel() -
     assert "inspect_wheel(final_wheels[0])" in source
 
 
+def test_python_315_wheel_matrix_and_runtime_contract() -> None:
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    assert "cp315-*" in pyproject["tool"]["cibuildwheel"]["build"]
+    assert "Programming Language :: Python :: 3.15" in pyproject["project"]["classifiers"]
+    requirements = pyproject["build-system"]["requires"]
+    assert any("endstone>=0.11.14.dev10,<0.12" in requirement for requirement in requirements)
+    assert "endstone>=0.11.14.dev10,<0.12" in pyproject["tool"]["cibuildwheel"]["linux"]["before-build"]
+
+    for name in ("build.yml", "release.yml"):
+        workflow = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+        assert 'python-tag: "cp315"' in workflow
+        assert 'python-version: "3.15"' in workflow
+        assert "pypa/cibuildwheel@v4.2.1" in workflow
+        assert "repository: EndstoneMC/endstone" in workflow
+        assert "actions/download-artifact@v7" in workflow
+        assert "PIP_FIND_LINKS=/project/.endstone-ci" in workflow
+        assert "python -m pip install .endstone-ci/*.whl" in workflow
+
+
 def main() -> int:
     tests = [value for name, value in globals().items() if name.startswith("test_") and callable(value)]
     for test in tests:

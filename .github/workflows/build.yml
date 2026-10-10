@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   native-linux:
@@ -198,7 +199,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-22.04, windows-latest ]
-        python-tag: [ "cp310", "cp311", "cp312", "cp313", "cp314" ]
+        python-tag: [ "cp310", "cp311", "cp312", "cp313", "cp314", "cp315" ]
         include:
           - os: ubuntu-22.04
             platform: manylinux_x86_64
@@ -214,6 +215,8 @@ jobs:
             python-version: "3.13"
           - python-tag: "cp314"
             python-version: "3.14"
+          - python-tag: "cp315"
+            python-version: "3.15"
 
     steps:
       - name: Checkout
@@ -231,12 +234,23 @@ jobs:
       - name: Set up CMake and Ninja
         uses: lukka/get-cmake@v4.4.2
 
+      - name: Download Endstone CPython 3.15 runtime
+        if: matrix.python-tag == 'cp315'
+        uses: actions/download-artifact@v7
+        with:
+          repository: EndstoneMC/endstone
+          run-id: 38065605505
+          name: endstone-0.11.14.dev10-${{ matrix.python-tag }}-${{ matrix.python-tag }}-${{ matrix.platform }}.whl
+          github-token: ${{ github.token }}
+          path: .endstone-ci
+
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.4.1
+        uses: pypa/cibuildwheel@v4.2.1
         env:
           CIBW_BUILD: ${{ matrix.python-tag }}-${{ matrix.platform }}
           CIBW_BUILD_VERBOSITY: 1
-          CIBW_CONTAINER_ENGINE: "docker; create_args: --volume ${{ github.workspace }}/.conan2:/project/.conan2"
+          CIBW_ENVIRONMENT_LINUX: "PIP_FIND_LINKS=/project/.endstone-ci"
+          CIBW_CONTAINER_ENGINE: "docker; create_args: --volume ${{ github.workspace }}/.conan2:/project/.conan2 --volume ${{ github.workspace }}/.endstone-ci:/project/.endstone-ci:ro"
 
       - name: Reclaim Conan home (Linux)
         if: always() && runner.os == 'Linux'
@@ -289,7 +303,11 @@ jobs:
         env:
           PYTHONFAULTHANDLER: "1"
         run: |
-          python -m pip install endstone==0.11.11
+          if [ "${{ matrix.python-tag }}" = "cp315" ]; then
+            python -m pip install .endstone-ci/*.whl
+          else
+            python -m pip install endstone==0.11.11
+          fi
           whl="$(python -c 'import pathlib; print(list(pathlib.Path("wheelhouse").glob("*.whl"))[0])')"
           python -m pip install "$whl"
           python tools/wheel_smoke_test.py --official
@@ -318,7 +336,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install build
-        run: python -m pip install build cibuildwheel==3.4.1
+        run: python -m pip install build cibuildwheel==4.2.1
 
       - name: Build sdist
         run: python -m build --sdist

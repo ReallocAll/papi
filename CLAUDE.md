@@ -414,14 +414,15 @@ reserved by relational syntax.
 
 ### Supported matrix
 
-- CPython 3.10–3.14 (`cp310`–`cp314`)
+- CPython 3.10–3.15 (`cp310`–`cp315`)
 - Windows x86-64 (`win_amd64`)
 - manylinux x86-64 (`manylinux_x86_64`)
 
 ### ABI
 
 - Official builds use Endstone `0.11.11` (API 0.11) as the C++ build baseline; package runtime support is
-  `endstone>=0.11.8,<0.12`.
+  `endstone>=0.11.8,<0.12`. CPython 3.15 Linux wheel repair and smoke tests use
+  official Endstone `0.11.14.dev10` artifacts until a compatible stable wheel is published.
 - Native ABI compatibility also depends on C++20, target architecture, standard library, compiler runtime,
   and Python minor wheel.
 - C++ providers must use a toolchain compatible with the running Endstone/PAPI build.

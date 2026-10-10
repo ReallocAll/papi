@@ -5,7 +5,8 @@ requires = [
     "conan==2.30.0",
     "pybind11==3.0.1",
     "auditwheel==6.4.2; sys_platform == 'linux'",
-    "endstone==0.11.11; sys_platform == 'linux'",
+    "endstone==0.11.11; sys_platform == 'linux' and python_version < '3.15'",
+    "endstone>=0.11.14.dev10,<0.12; sys_platform == 'linux' and python_version >= '3.15'",
     "patchelf==0.17.2.4; sys_platform == 'linux'",
     "wheel==0.46.2; sys_platform == 'linux'",
 ]
@@ -34,6 +35,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: C++",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
@@ -83,14 +85,14 @@ extend-exclude = [
 ]
 
 [tool.cibuildwheel]
-build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
 skip = ["*-musllinux*", "*_i686", "*-win32"]
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "ghcr.io/endstonemc/manylinux_2_31_x86_64"
 environment = { CC = "/usr/bin/clang-20", CXX = "/usr/bin/clang++-20" }
 # Wheel repair requires Endstone's exact hashed runtime SONAMEs.
-before-build = "pip install ninja wheel endstone==0.11.11"
+before-build = "pip install ninja wheel 'endstone==0.11.11; python_version < \"3.15\"' 'endstone>=0.11.14.dev10,<0.12; python_version >= \"3.15\"'"
 # The backend repairs wheels built directly or from an sdist.
 repair-wheel-command = ""
 before-all = [

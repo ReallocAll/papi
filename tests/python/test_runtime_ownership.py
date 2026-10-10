@@ -15,6 +15,7 @@ mutation of site-packages:
 from __future__ import annotations
 
 import pathlib
+
 import tomllib
 
 import endstone_papi

@@ -78,7 +78,7 @@ def test_pyproject_linux_before_build_installs_endstone() -> None:
     before_build = config["tool"]["cibuildwheel"]["linux"]["before-build"]
     assert "pip install ninja wheel" in before_build
     assert "endstone==0.11.11" in before_build
-    assert "endstone>=0.11.14.dev10,<0.12" in before_build
+    assert "endstone==0.11.14" in before_build
 
 
 def test_pyproject_routes_wheel_repair_through_build_backend() -> None:

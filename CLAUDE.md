@@ -29,7 +29,7 @@ in native code rather than duplicating it in Python.
 - Conan 2
 - Windows: LLVM clang-cl 18 or newer, the MSVC x64 build environment, and the Windows SDK
 - Linux: Clang 18 or newer with libc++ and libc++abi
-- Python 3.10+ for the package and test tooling
+- Python 3.11+ for the package and test tooling
 
 The repository owns `.conan2/profiles/default` and `.conanrc`. The profile selects
 RelWithDebInfo, C++20, Ninja, clang-cl on Windows, and Clang with libc++ on Linux. CI
@@ -414,17 +414,16 @@ reserved by relational syntax.
 
 ### Supported matrix
 
-- CPython 3.10–3.15 (`cp310`–`cp315`)
-- CPython 3.15 CI requires `ENDSTONE_ARTIFACT_TOKEN` with GitHub Actions read access to the
-  upstream Endstone repository until compatible wheels are available on PyPI.
+- CPython 3.11–3.15 (`cp311`–`cp315`); Endstone no longer supports Python 3.10.
+- CPython 3.15 builds and tests use official Endstone 0.11.14 PyPI wheels without an artifact token.
 - Windows x86-64 (`win_amd64`)
 - manylinux x86-64 (`manylinux_x86_64`)
 
 ### ABI
 
-- Official builds use Endstone `0.11.11` (API 0.11) as the C++ build baseline; package runtime support is
+- Official builds retain Endstone `0.11.11` (API 0.11) as the C++ public-header baseline; package runtime support is
   `endstone>=0.11.8,<0.12`. CPython 3.15 Linux wheel repair and smoke tests use
-  official Endstone `0.11.14.dev10` artifacts until a compatible stable wheel is published.
+  official Endstone `0.11.14` PyPI wheels.
 - Native ABI compatibility also depends on C++20, target architecture, standard library, compiler runtime,
   and Python minor wheel.
 - C++ providers must use a toolchain compatible with the running Endstone/PAPI build.

@@ -351,28 +351,35 @@ def test_repair_targets_endstone_manylinux_baseline_and_verifies_final_wheel() -
 
 def test_python_315_wheel_matrix_and_runtime_contract() -> None:
     pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert "cp315-*" in pyproject["tool"]["cibuildwheel"]["build"]
-    assert pyproject["tool"]["cibuildwheel"]["linux"]["environment"]["PIP_FIND_LINKS"] == "/endstone-ci"
+    assert pyproject["project"]["requires-python"] == ">=3.11"
+    assert pyproject["tool"]["cibuildwheel"]["build"] == [
+        "cp311-*",
+        "cp312-*",
+        "cp313-*",
+        "cp314-*",
+        "cp315-*",
+    ]
     assert "Programming Language :: Python :: 3.15" in pyproject["project"]["classifiers"]
+    assert "Programming Language :: Python :: 3.10" not in pyproject["project"]["classifiers"]
     requirements = pyproject["build-system"]["requires"]
-    assert any("endstone>=0.11.14.dev10,<0.12" in requirement for requirement in requirements)
-    assert "endstone>=0.11.14.dev10,<0.12" in pyproject["tool"]["cibuildwheel"]["linux"]["before-build"]
+    assert any("endstone==0.11.14" in requirement for requirement in requirements)
+    assert "endstone==0.11.14" in pyproject["tool"]["cibuildwheel"]["linux"]["before-build"]
+    assert "PIP_FIND_LINKS" not in pyproject["tool"]["cibuildwheel"]["linux"]["environment"]
 
     for name in ("build.yml", "release.yml"):
         workflow = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
         assert 'python-tag: "cp315"' in workflow
+        assert 'python-tag: "cp310"' not in workflow
         assert 'python-version: "3.15"' in workflow
+        assert 'python-version: "3.10"' not in workflow
         assert "pypa/cibuildwheel@v4.2.1" in workflow
-        assert "https://api.github.com/repos/EndstoneMC/endstone/actions/artifacts/" in workflow
-        assert "secrets.ENDSTONE_ARTIFACT_TOKEN" in workflow
-        assert "sha256sum --check" in workflow
-        assert "unzip -p \"$archive\" '*.dist-info/WHEEL'" in workflow
-        assert "cp315-cp315-" in workflow
-        assert "python -m pip install .endstone-ci/*.whl" in workflow
+        assert "ENDSTONE_ARTIFACT_TOKEN" not in workflow
+        assert "Download Endstone CPython 3.15 runtime" not in workflow
+        assert ".endstone-ci" not in workflow
         assert "CIBW_BEFORE_TEST:" in workflow
+        assert "python -m pip install endstone==0.11.14" in workflow
         assert "CIBW_TEST_COMMAND:" in workflow
         assert "matrix.python-tag != 'cp315'" in workflow
-
 
 def main() -> int:
     tests = [value for name, value in globals().items() if name.startswith("test_") and callable(value)]

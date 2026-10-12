@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- CPython 3.15 wheels for Windows and Linux.
+- CPython 3.15 wheels for Windows and Linux, using official Endstone 0.11.14 PyPI wheels in CI.
 
 ### Fixed
 
@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **BREAKING**: Dropped Python 3.10 support to match Endstone 0.11.14 (Python 3.11+).
+- Removed the temporary GitHub Actions artifact and token bootstrap used for Python 3.15.
 - Placeholder routing now uses a colon namespace boundary: ordinary placeholders are
   `{identifier:params}` and relational placeholders are `{rel:identifier:params}`.
   Only the routing colon(s) are interpreted by PAPI; provider params preserve

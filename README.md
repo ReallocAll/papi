@@ -156,10 +156,10 @@ spaces, and selectors are not supported.
 
 ## Requirements
 
-CPython: 3.10–3.15 (a matching native wheel is required).
+CPython: 3.11–3.15 (a matching native wheel is required).
 
-Endstone: `>=0.11.8,<0.12` (API 0.11). Python 3.15 currently requires
-an Endstone 0.11.14.dev10 or newer wheel from the official Endstone builds.
+Endstone: `>=0.11.8,<0.12` (API 0.11). Python 3.15 requires Endstone 0.11.14 or newer,
+installed from the official PyPI release.
 
 Platforms: x86-64 Windows and Linux.
 

@@ -255,14 +255,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-22.04, windows-latest ]
-        python-tag: [ "cp310", "cp311", "cp312", "cp313", "cp314", "cp315" ]
+        python-tag: [ "cp311", "cp312", "cp313", "cp314", "cp315" ]
         include:
           - os: ubuntu-22.04
             platform: manylinux_x86_64
           - os: windows-latest
             platform: win_amd64
-          - python-tag: "cp310"
-            python-version: "3.10"
           - python-tag: "cp311"
             python-version: "3.11"
           - python-tag: "cp312"
@@ -290,46 +288,14 @@ jobs:
       - name: Set up CMake and Ninja
         uses: lukka/get-cmake@v4.4.2
 
-      - name: Download Endstone CPython 3.15 runtime
-        if: matrix.python-tag == 'cp315'
-        shell: bash
-        env:
-          ENDSTONE_ARTIFACT_TOKEN: ${{ secrets.ENDSTONE_ARTIFACT_TOKEN }}
-        run: |
-          if [ -z "$ENDSTONE_ARTIFACT_TOKEN" ]; then
-            echo "::error::ENDSTONE_ARTIFACT_TOKEN is required to download the CPython 3.15 Endstone wheel"
-            exit 1
-          fi
-          if [ "${{ runner.os }}" = "Linux" ]; then
-            artifact_id=11674718763
-            digest=195fb2e7c0e441111a4a7ee29b47e986dd3e639480b1df3f0fbcb66e255fd9bc
-            wheel_platform=manylinux_2_31_x86_64
-          else
-            artifact_id=11674443175
-            digest=4d6fb9b455eaeebfdc01ef40db1335b6bc5d3677da4b3cd7f923d15950ffc661
-            wheel_platform=win_amd64
-          fi
-          archive="$RUNNER_TEMP/endstone-cp315.zip"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            -H "Authorization: Bearer $ENDSTONE_ARTIFACT_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/EndstoneMC/endstone/actions/artifacts/${artifact_id}/zip" \
-            --output "$archive"
-          echo "$digest  $archive" | sha256sum --check
-          mkdir -p .endstone-ci
-          unzip -p "$archive" '*.dist-info/WHEEL' | grep -Fx "Tag: cp315-cp315-$wheel_platform"
-          mkdir -p .endstone-ci
-          cp "$archive" ".endstone-ci/endstone-0.11.14.dev10-cp315-cp315-$wheel_platform.whl"
-
       - name: Build wheels
         uses: pypa/cibuildwheel@v4.2.1
         env:
           CIBW_BUILD: ${{ matrix.python-tag }}-${{ matrix.platform }}
           CIBW_BUILD_VERBOSITY: 1
-          CIBW_BEFORE_TEST: ${{ matrix.python-tag == 'cp315' && 'python "{project}/tools/install_ci_endstone.py"' || '' }}
+          CIBW_BEFORE_TEST: ${{ matrix.python-tag == 'cp315' && 'python -m pip install endstone==0.11.14' || '' }}
           CIBW_TEST_COMMAND: ${{ matrix.python-tag == 'cp315' && 'python "{project}/tools/wheel_smoke_test.py" --official' || '' }}
-          CIBW_CONTAINER_ENGINE: "docker; create_args: --volume ${{ github.workspace }}/.conan2:/project/.conan2 --volume ${{ github.workspace }}/.endstone-ci:/endstone-ci:ro"
+          CIBW_CONTAINER_ENGINE: "docker; create_args: --volume ${{ github.workspace }}/.conan2:/project/.conan2"
 
       - name: Reclaim Conan home (Linux)
         if: always() && runner.os == 'Linux'
@@ -345,11 +311,7 @@ jobs:
         if: matrix.python-tag != 'cp315'
         shell: bash
         run: |
-          if [ "${{ matrix.python-tag }}" = "cp315" ]; then
-            python -m pip install .endstone-ci/*.whl
-          else
-            python -m pip install endstone==0.11.11
-          fi
+          python -m pip install endstone==0.11.11
           whl="$(python -c 'import pathlib; print(list(pathlib.Path("wheelhouse").glob("*.whl"))[0])')"
           python -m pip install "$whl"
           python tools/wheel_smoke_test.py --official
